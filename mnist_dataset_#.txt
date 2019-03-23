@@ -1,0 +1,14 @@
+training
+[label  7 ] # of data:  6265
+
+test
+[label  0 ] # of data:  980
+[label  1 ] # of data:  1135
+[label  2 ] # of data:  1032
+[label  3 ] # of data:  1010
+[label  4 ] # of data:  982
+[label  5 ] # of data:  892
+[label  6 ] # of data:  958
+[label  7 ] # of data:  1028
+[label  8 ] # of data:  974
+[label  9 ] # of data:  1009
