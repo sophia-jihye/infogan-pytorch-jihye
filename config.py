@@ -13,8 +13,8 @@ args = parser.parse_args()
 # Dictionary storing network parameters.
 params = {
     'load_path': args.load_path,  # 128 for train, 1 for anogan
-    'batch_size': 1,  # 128 for train, 1 for anogan
-    'num_epochs': 10,  # 100   # Number of epochs to train for.
+    'batch_size': 128,  # 128 for train, 1 for anogan
+    'num_epochs': 500,  # 100   # Number of epochs to train for.
     'learning_rate': 2e-4,  # Learning rate.
     'beta1': 0.5,
     'beta2': 0.999,  # 0.999
