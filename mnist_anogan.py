@@ -6,6 +6,7 @@ import argparse
 from models.mnist_model import Generator, Discriminator, DHead, QHead
 from utils import *
 import csv
+from evaluations import do_prc
 
 device = torch.device("cuda:0" if (torch.cuda.is_available()) else "cpu")
 
@@ -165,61 +166,93 @@ if (trainYn == False):
     tp = 0
     tn = 0
 
+    scores = []
+    testy = np.zeros((0,))
     for label in range(10):
         dataloader = get_data(params['dataset'], params['batch_size'], label, trainYn)
 
-        sample_test = round(anonum * len(dataloader))
+        sample_test = round(1000 * anonum)
         rand_idx_list = np.random.choice(len(dataloader), sample_test)  # 500
-        cnt = 0
+        cnt = -1
+        scores_temp = []
+        testy_temp = np.zeros((sample_test,))
         for idx, item in enumerate(dataloader):
-            if (idx in rand_idx_list):
-                cnt += 1
-                print(cnt, '/', len(rand_idx_list))
+            if (idx >= sample_test):
+                break
+            cnt += 1
+            print(cnt, '/', len(rand_idx_list))
 
-                item = item[0]
-                # show_img(item, str(label) + '-' + str(idx))
-                aScore = anomaly_score(item)
-                if (aScore > base_score):
-                    print(str(label) + '-' + str(idx), ' => anomaly // aScore=', aScore.item())
-                    csv_writer.writerow([label, idx, aScore.item(), 'y'])
-                    if (label == anomaly_label):
-                        tp += 1
-                    else:
-                        fp += 1
-                else:
-                    csv_writer.writerow([label, idx, aScore.item(), 'n'])
-                    if (label != anomaly_label):
-                        tn += 1
-                    else:
-                        fn += 1
+            item = item[0]
+            # show_img(item, str(label) + '-' + str(idx))
+            aScore = anomaly_score(item)
+            scores_temp.append(aScore)
+            if (label == anomaly_label):
+                print('anomaly_lael data')
+                testy_temp[cnt] = 1
+            # if (idx in rand_idx_list):
+            #     cnt += 1
+            #     print(cnt, '/', len(rand_idx_list))
+            #
+            #     item = item[0]
+            #     # show_img(item, str(label) + '-' + str(idx))
+            #     aScore = anomaly_score(item)
+            #     scores_temp.append(aScore)
+            #     if (label == anomaly_label):
+            #         print('anomaly_lael data')
+            #         testy_temp[cnt] = 1
+        scores = np.concatenate((scores, scores_temp))
+        testy = np.concatenate((testy, testy_temp))
+        print('scores.shape=', scores.shape)
+        print('testy.shape=', testy.shape)
 
-    print('fp=', fp)
-    print('tp=', tp)
-    print('tn=', tn)
-    print('fn=', fn)
-    if fp == 0:
-        fp = 0.01
-    if tp == 0:
-        tp = 0.01
-    if tn == 0:
-        tn = 0.01
-    if fn == 0:
-        fn = 0.01
-    precision = tp / (tp + fp)
-    sensitivity = tp / (tp + fn)
-    specificity = tn / (tn + fp)
-    f1score = 2 * tp / (2 * tp + fp + fn)
-    csv_writer.writerow([])
-    csv_writer.writerow(['false-positive(label7, anomaly)', fp])
-    csv_writer.writerow(['true-positive(label8-6, anomaly)', tp])
-    csv_writer.writerow(['false-negative(label7, normal)', fn])
-    csv_writer.writerow(['true-negative(label8-6, normal)', tn])
-    csv_writer.writerow(['precision', precision])
-    csv_writer.writerow(['sensitivity', sensitivity])
-    csv_writer.writerow(['specificity', specificity])
-    csv_writer.writerow(['f1-score', f1score])
+        # if (aScore > base_score):
+        #     print(str(label) + '-' + str(idx), ' => anomaly // aScore=', aScore.item())
+        #     csv_writer.writerow([label, idx, aScore.item(), 'y'])
+        #     if (label == anomaly_label):
+        #         tp += 1
+        #     else:
+        #         fp += 1
+        # else:
+        #     csv_writer.writerow([label, idx, aScore.item(), 'n'])
+        #     if (label != anomaly_label):
+        #         tn += 1
+        #     else:
+        #         fn += 1
+
+    prc_auc = do_prc(scores, testy,
+                     file_name=r'gan/mnist/{}/{}/{}'.format(0, 0,
+                                                            label),
+                     directory=r'results/gan/mnist/{}/{}/'.format(0,
+                                                                  0))
+    print("Testing | PRC AUC = {:.4f}".format(prc_auc))
+
+    # print('fp=', fp)
+    # print('tp=', tp)
+    # print('tn=', tn)
+    # print('fn=', fn)
+    # if fp == 0:
+    #     fp = 0.01
+    # if tp == 0:
+    #     tp = 0.01
+    # if tn == 0:
+    #     tn = 0.01
+    # if fn == 0:
+    #     fn = 0.01
+    # precision = tp / (tp + fp)
+    # sensitivity = tp / (tp + fn)
+    # specificity = tn / (tn + fp)
+    # f1score = 2 * tp / (2 * tp + fp + fn)
+    # csv_writer.writerow([])
+    # csv_writer.writerow(['false-positive(label7, anomaly)', fp])
+    # csv_writer.writerow(['true-positive(label8-6, anomaly)', tp])
+    # csv_writer.writerow(['false-negative(label7, normal)', fn])
+    # csv_writer.writerow(['true-negative(label8-6, normal)', tn])
+    # csv_writer.writerow(['precision', precision])
+    # csv_writer.writerow(['sensitivity', sensitivity])
+    # csv_writer.writerow(['specificity', specificity])
+    # csv_writer.writerow(['f1-score', f1score])
     f.close()
-    print('precision=', precision)
-    print('sensitivity=', sensitivity)
-    print('specificity=', specificity)
-    print('f1score=', f1score)
+    # print('precision=', precision)
+    # print('sensitivity=', sensitivity)
+    # print('specificity=', specificity)
+    # print('f1score=', f1score)

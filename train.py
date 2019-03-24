@@ -13,6 +13,7 @@ from config import params
 
 anomaly_label = params['anomaly_label']
 trainYn = params['trainYn']
+batch_size = params['batch_size']
 
 if (params['dataset'] == 'MNIST'):
     from models.mnist_model import Generator, Discriminator, DHead, QHead
@@ -36,9 +37,9 @@ device = torch.device("cuda:0" if (torch.cuda.is_available()) else "cpu")
 print(device, " will be used.\n")
 
 if params['dataset'] == 'MNIST':
-    dataloader = get_data(params['dataset'], params['batch_size'], anomaly_label, trainYn)
+    dataloader = get_data(params['dataset'], batch_size, anomaly_label, trainYn)
 else:
-    dataloader = get_data(params['dataset'], params['batch_size'])
+    dataloader = get_data(params['dataset'], batch_size)
 
 # Set appropriate hyperparameters depending on the dataset used.
 # The values given in the InfoGAN paper are used.
@@ -79,7 +80,7 @@ plt.figure(figsize=(10, 10))
 plt.axis("off")
 plt.imshow(np.transpose(vutils.make_grid(
     sample_batch[0].to(device)[: 100], nrow=10, padding=2, normalize=True).cpu(), (1, 2, 0)))
-plt.savefig('./result/Training Images {}'.format(params['dataset']))
+plt.savefig('./result/%d_epoch%d_Training_Images' % (anomaly_label, params['num_epochs']))
 plt.close('all')
 
 # Initialise the network.
@@ -150,7 +151,7 @@ print("-" * 25)
 print("Starting Training Loop...\n")
 print('Epochs: %d\nDataset: {}\nBatch Size: %d\nLength of Data Loader: %d\nbeta1: %s\nbeta2: %s'.format(
     params['dataset']) % (
-          params['num_epochs'], params['batch_size'], len(dataloader), str(params['beta1']), str(params['beta2'])))
+          params['num_epochs'], batch_size, len(dataloader), str(params['beta1']), str(params['beta2'])))
 print("-" * 25)
 
 start_time = time.time()
@@ -246,7 +247,7 @@ for epoch in range(params['num_epochs']):
         plt.figure(figsize=(10, 10))
         plt.axis("off")
         plt.imshow(np.transpose(vutils.make_grid(gen_data, nrow=10, padding=2, normalize=True), (1, 2, 0)))
-        plt.savefig("./result/Epoch_%d {}".format(params['dataset']) % (epoch + 1))
+        plt.savefig("./result/%d-Epoch%d" % (anomaly_label, epoch + 1))
         plt.close('all')
 
     # Save network weights.
@@ -260,9 +261,9 @@ for epoch in range(params['num_epochs']):
                 'optimD': optimD.state_dict(),
                 'optimG': optimG.state_dict(),
                 'params': params
-            }, 'checkpoint/model_epoch%d_{}_{}_d{}c{}'.format(params['dataset'], params['datainfo'],
-                                                              params['num_dis_c'],
-                                                              params['num_con_c']) % (epoch + 1))
+            }, 'checkpoint/model_%d_epoch%d_{}_{}_d{}c{}'.format(params['dataset'], params['datainfo'],
+                                                                 params['num_dis_c'],
+                                                                 params['num_con_c']) % (anomaly_label, epoch + 1))
     else:
         if (epoch + 1) % params['save_epoch'] == 0:
             torch.save({
@@ -323,12 +324,12 @@ plt.plot(D_losses, label="D")
 plt.xlabel("iterations")
 plt.ylabel("Loss")
 plt.legend()
-plt.savefig("./result/Loss Curve {}".format(params['dataset']))
+plt.savefig("./result/Loss Curve_%d" % (anomaly_label))
 
 # Animation showing the improvements of the generator.
-fig = plt.figure(figsize=(10, 10))
-plt.axis("off")
-ims = [[plt.imshow(np.transpose(i, (1, 2, 0)), animated=True)] for i in img_list]
-anim = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, blit=True)
-anim.save('./result/infoGAN_{}.gif'.format(params['dataset']), dpi=80, writer='imagemagick')
-plt.show()
+# fig = plt.figure(figsize=(10, 10))
+# plt.axis("off")
+# ims = [[plt.imshow(np.transpose(i, (1, 2, 0)), animated=True)] for i in img_list]
+# anim = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, blit=True)
+# anim.save('./result/infoGAN_{}.gif'.format(params['dataset']), dpi=80, writer='imagemagick')
+# plt.show()
