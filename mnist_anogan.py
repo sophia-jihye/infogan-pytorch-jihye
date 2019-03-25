@@ -220,10 +220,8 @@ if (trainYn == False):
         #         fn += 1
 
     prc_auc = do_prc(scores, testy,
-                     file_name=r'gan/mnist/{}/{}/{}'.format(0, 0,
-                                                            label),
-                     directory=r'results/gan/mnist/{}/{}/'.format(0,
-                                                                  0))
+                     file_name=r'%d-%.2f_prc_%s' % (anomaly_label, anonum, filename),
+                     directory=r'result/')
     print("Testing | PRC AUC = {:.4f}".format(prc_auc))
 
     # print('fp=', fp)
