@@ -50,7 +50,7 @@ else:
 if (params['dataset'] == 'MNIST'):
     params['num_z'] = 62
     params['num_dis_c'] = 1
-    params['dis_c_dim'] = 10
+    params['dis_c_dim'] = 9
     params['num_con_c'] = 2
 elif (params['dataset'] == 'CELL'):
     params['num_z'] = 124
@@ -129,7 +129,7 @@ if (params['num_dis_c'] != 0):
     idx = np.arange(params['dis_c_dim']).repeat(10)
     dis_c = torch.zeros(100, params['num_dis_c'], params['dis_c_dim'], device=device)
     for i in range(params['num_dis_c']):
-        dis_c[torch.arange(0, 100), i, idx] = 1.0
+        dis_c[torch.arange(0, 10*params['dis_c_dim']), i, idx] = 1.0
 
     dis_c = dis_c.view(100, -1, 1, 1)
 
