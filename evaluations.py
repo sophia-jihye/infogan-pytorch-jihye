@@ -27,13 +27,11 @@ def do_prc(scores, true_labels, file_name='', directory='', plot=True):
         plt.ylabel('Precision')
         plt.ylim([0.0, 1.05])
         plt.xlim([0.0, 1.0])
-        plt.title('Precision-Recall curve: AUC=%0.4f' 
-                            %(prc_auc))
+        plt.title('Precision-Recall curve: AUC=%0.4f'
+                  % (prc_auc))
         if not os.path.exists(directory):
             os.makedirs(directory)
-        plt.savefig('results/' + file_name + '_prc.jpg')
+        plt.savefig(directory + file_name + '_prc.jpg')
         plt.close()
 
     return prc_auc
-
-
