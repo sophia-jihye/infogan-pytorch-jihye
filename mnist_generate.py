@@ -26,21 +26,22 @@ netG = Generator(num_z_c).to(device)
 netG.load_state_dict(state_dict['netG'])
 print(netG)
 
-c = np.linspace(-2, 2, 10).reshape(1, -1)
+c = np.linspace(-2, 2,  params['dis_c_dim']).reshape(1, -1)
 c = np.repeat(c, 10, 0).reshape(-1, 1)
 c = torch.from_numpy(c).float().to(device)
 c = c.view(-1, 1, 1, 1)
 
-zeros = torch.zeros(100, 1, 1, 1, device=device)
+temp_100 = 10 * params['dis_c_dim']
+zeros = torch.zeros(temp_100, 1, 1, 1, device=device)
 
-idx = np.arange(10).repeat(10)
-dis_c = torch.zeros(100, 10, 1, 1, device=device)
-dis_c[torch.arange(0, 100), idx] = 1.0
+idx = np.arange(params['dis_c_dim']).repeat(10)
+dis_c = torch.zeros(temp_100, params['dis_c_dim'], 1, 1, device=device)
+dis_c[torch.arange(0, temp_100), idx] = 1.0
 
-z = torch.randn(100, 62, 1, 1, device=device)
+z = torch.randn(temp_100, 62, 1, 1, device=device)
 
 # Discrete latent code.
-c1 = dis_c.view(100, -1, 1, 1)
+c1 = dis_c.view(temp_100, -1, 1, 1)
 # Continuous latent code.
 c2 = torch.cat((c, zeros), dim=1)
 c3 = torch.cat((zeros, c), dim=1)
