@@ -123,20 +123,21 @@ optimG = optim.Adam([{'params': netG.parameters()}, {'params': netQ.parameters()
                     betas=(params['beta1'], params['beta2']))
 
 # Fixed Noise
-z = torch.randn(100, params['num_z'], 1, 1, device=device)
+temp_100 = 10 * params['dis_c_dim']
+z = torch.randn(temp_100, params['num_z'], 1, 1, device=device)
 fixed_noise = z
 if (params['num_dis_c'] != 0):
     idx = np.arange(params['dis_c_dim']).repeat(10)
-    dis_c = torch.zeros(100, params['num_dis_c'], params['dis_c_dim'], device=device)
+    dis_c = torch.zeros(temp_100, params['num_dis_c'], params['dis_c_dim'], device=device)
     for i in range(params['num_dis_c']):
-        dis_c[torch.arange(0, 10*params['dis_c_dim']), i, idx] = 1.0
+        dis_c[torch.arange(0, temp_100), i, idx] = 1.0
 
-    dis_c = dis_c.view(100, -1, 1, 1)
+    dis_c = dis_c.view(temp_100, -1, 1, 1)
 
     fixed_noise = torch.cat((fixed_noise, dis_c), dim=1)
 
 if (params['num_con_c'] != 0):
-    con_c = torch.rand(100, params['num_con_c'], 1, 1, device=device) * 2 - 1
+    con_c = torch.rand(temp_100, params['num_con_c'], 1, 1, device=device) * 2 - 1
     fixed_noise = torch.cat((fixed_noise, con_c), dim=1)
 
 real_label = 1
