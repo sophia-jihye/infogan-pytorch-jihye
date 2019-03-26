@@ -79,7 +79,7 @@ sample_batch = next(iter(dataloader))
 plt.figure(figsize=(10, 10))
 plt.axis("off")
 plt.imshow(np.transpose(vutils.make_grid(
-    sample_batch[0].to(device)[: 100], nrow=10, padding=2, normalize=True).cpu(), (1, 2, 0)))
+    sample_batch[0].to(device)[: 90], nrow=10, padding=2, normalize=True).cpu(), (1, 2, 0)))
 plt.savefig('./result/%d_epoch%d_Training_Images' % (anomaly_label, params['num_epochs']))
 plt.close('all')
 

@@ -25,7 +25,7 @@ print('trainYn: ', trainYn)
 if (params['dataset'] == 'MNIST'):
     params['num_z'] = 62
     params['num_dis_c'] = 1
-    params['dis_c_dim'] = 10
+    params['dis_c_dim'] = 9
     params['num_con_c'] = 2
 
 # restore models: generator, discriminator, netQ
@@ -55,21 +55,22 @@ def res_loss(x, Gz):
 
 
 def get_rand_z_c():
-    idx = np.arange(10).repeat(10)
-    zeros = torch.zeros(100, 1, 1, 1, device=device)
+    temp_100 = 10 * params['dis_c_dim']
+    idx = np.arange(params['dis_c_dim']).repeat(10)
+    zeros = torch.zeros(temp_100, 1, 1, 1, device=device)
 
-    c = np.linspace(-2, 2, 10).reshape(1, -1)
+    c = np.linspace(-2, 2, params['dis_c_dim']).reshape(1, -1)
     c = np.repeat(c, 10, 0).reshape(-1, 1)
     c = torch.from_numpy(c).float().to(device)
     c = c.view(-1, 1, 1, 1)
 
-    dis_c = torch.zeros(100, 10, 1, 1, device=device)
-    dis_c[torch.arange(0, 100), idx] = 1.0
+    dis_c = torch.zeros(temp_100, params['dis_c_dim'], 1, 1, device=device)
+    dis_c[torch.arange(0, temp_100), idx] = 1.0
 
-    z = torch.randn(100, 60, 1, 1, device=device)
+    z = torch.randn(temp_100, 60, 1, 1, device=device)
 
     # Discrete latent code.
-    c1 = dis_c.view(100, -1, 1, 1)
+    c1 = dis_c.view(temp_100, -1, 1, 1)
 
     # Continuous latent code.
     c2 = torch.cat((c, zeros), dim=1)
