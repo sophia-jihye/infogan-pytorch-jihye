@@ -14,6 +14,7 @@ args = parser.parse_args()
 params = {
     'load_path': args.load_path,  # 128 for train, 1 for anogan
     # 'batch_size': 1,  # 128 for train, 1 for anogan
+    'filename' : args.filename,
     'num_epochs': 500,  # 500   # Number of epochs to train for.
     'learning_rate': 2e-4,  # Learning rate.
     'beta1': 0.5,
@@ -24,7 +25,7 @@ params = {
 if (params['dataset'] == 'MNIST'):
     params['trainYn'] = args.trainYn  # True , False
     params['anomaly_label'] = args.anomaly_label
-    params['filename'] = args.filename
+    # params['filename'] = args.filename
     params['basenum'] = args.basenum
 
     if (params['trainYn'] == True):
