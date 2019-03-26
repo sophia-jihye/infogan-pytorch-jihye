@@ -7,8 +7,11 @@ from models.mnist_model import Generator, Discriminator, DHead, QHead
 from utils import *
 import csv
 from evaluations import do_prc
+from sklearn.metrics import f1_score
 
 device = torch.device("cuda:0" if (torch.cuda.is_available()) else "cpu")
+
+temp_dim = 9
 
 print('load_path:', params['load_path'])
 state_dict = torch.load(params['load_path'])
@@ -55,12 +58,12 @@ def res_loss(x, Gz):
 
 
 def get_rand_z_c():
-    temp_100 = 10 * params['dis_c_dim']
-    idx = np.arange(params['dis_c_dim']).repeat(10)
+    temp_100 = temp_dim * params['dis_c_dim']
+    idx = np.arange(params['dis_c_dim']).repeat(temp_dim)
     zeros = torch.zeros(temp_100, 1, 1, 1, device=device)
 
     c = np.linspace(-2, 2, params['dis_c_dim']).reshape(1, -1)
-    c = np.repeat(c, 10, 0).reshape(-1, 1)
+    c = np.repeat(c, temp_dim, 0).reshape(-1, 1)
     c = torch.from_numpy(c).float().to(device)
     c = c.view(-1, 1, 1, 1)
 
@@ -126,7 +129,7 @@ def show_img(test_img, filename):
     plt.figure(figsize=(10, 10))
     plt.axis("off")
     plt.imshow(np.transpose(vutils.make_grid(
-        sample_batch[0].to(device)[: 100], nrow=10, padding=2, normalize=True).cpu(), (1, 2, 0)))
+        sample_batch[0].to(device)[: temp_dim*temp_dim], nrow=temp_dim, padding=2, normalize=True).cpu(), (1, 2, 0)))
     plt.savefig('./result/img/raw-test-image-%s' % filename)
     plt.close('all')
 
@@ -224,6 +227,10 @@ if (trainYn == False):
                      file_name=r'%d-%.2f_prc_%s' % (anomaly_label, anonum, filename),
                      directory=r'result/')
     print("Testing | PRC AUC = {:.4f}".format(prc_auc))
+
+    # f1_score_val = f1_score(testy, scores, average='weighted')
+    # print("f1_score=", f1_score_val)
+    # csv_writer.writerow(['f1-score', f1_score_val])
 
     # print('fp=', fp)
     # print('tp=', tp)

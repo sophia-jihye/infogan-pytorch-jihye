@@ -8,6 +8,8 @@ from config import params as params_config
 
 from models.mnist_model import Generator
 
+temp_dim = 9
+
 # Load the checkpoint file
 state_dict = torch.load(params_config['load_path'])
 
@@ -27,14 +29,14 @@ netG.load_state_dict(state_dict['netG'])
 print(netG)
 
 c = np.linspace(-2, 2, params['dis_c_dim']).reshape(1, -1)
-c = np.repeat(c, 10, 0).reshape(-1, 1)
+c = np.repeat(c, temp_dim, 0).reshape(-1, 1)
 c = torch.from_numpy(c).float().to(device)
 c = c.view(-1, 1, 1, 1)
 
-temp_100 = 10 * params['dis_c_dim']
+temp_100 = temp_dim * params['dis_c_dim']
 zeros = torch.zeros(temp_100, 1, 1, 1, device=device)
 
-idx = np.arange(params['dis_c_dim']).repeat(10)
+idx = np.arange(params['dis_c_dim']).repeat(temp_dim)
 dis_c = torch.zeros(temp_100, params['dis_c_dim'], 1, 1, device=device)
 dis_c[torch.arange(0, temp_100), idx] = 1.0
 
@@ -56,7 +58,7 @@ with torch.no_grad():
 # Display the generated image.
 fig = plt.figure(figsize=(10, 10))
 plt.axis("off")
-plt.imshow(np.transpose(vutils.make_grid(generated_img1, nrow=10, padding=2, normalize=True), (1, 2, 0)))
+plt.imshow(np.transpose(vutils.make_grid(generated_img1, nrow=temp_dim, padding=2, normalize=True), (1, 2, 0)))
 plt.savefig('./result/%d_c12_%s' % (anomaly_label, filename))
 plt.close('all')
 
@@ -70,6 +72,6 @@ with torch.no_grad():
 # Display the generated image.
 fig = plt.figure(figsize=(10, 10))
 plt.axis("off")
-plt.imshow(np.transpose(vutils.make_grid(generated_img2, nrow=10, padding=2, normalize=True), (1, 2, 0)))
+plt.imshow(np.transpose(vutils.make_grid(generated_img2, nrow=temp_dim, padding=2, normalize=True), (1, 2, 0)))
 plt.savefig('./result/%d_c13_%s' % (anomaly_label, filename))
 plt.close('all')

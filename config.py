@@ -15,7 +15,7 @@ params = {
     'load_path': args.load_path,  # 128 for train, 1 for anogan
     # 'batch_size': 1,  # 128 for train, 1 for anogan
     'filename' : args.filename,
-    'num_epochs': 500,  # 500   # Number of epochs to train for.
+    'num_epochs': 1,  # 500   # Number of epochs to train for.
     'learning_rate': 2e-4,  # Learning rate.
     'beta1': 0.5,
     'beta2': 0.999,  # 0.999
