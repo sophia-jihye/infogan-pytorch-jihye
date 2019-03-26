@@ -161,7 +161,7 @@ if (trainYn == True):  # test_base
     print('mean+1sigma', np.average(aScore_list) + np.std(aScore_list))
 
 if (trainYn == False):
-    f = open('./result/test-%d-%s-%s.csv' % (anomaly_label, str(base_score), filename), 'w', newline='')
+    f = open('./result/test-%d-%.2f-%s.csv' % (anomaly_label, anonum, filename), 'w', newline='')
     csv_writer = csv.writer(f)
     csv_writer.writerow(['label', 'idx', 'score', 'anomalyYN'])
 
