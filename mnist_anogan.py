@@ -70,16 +70,20 @@ def get_rand_z_c():
     dis_c = torch.zeros(temp_100, params['dis_c_dim'], 1, 1, device=device)
     dis_c[torch.arange(0, temp_100), idx] = 1.0
 
-    z = torch.randn(temp_100, 60, 1, 1, device=device)
+    # z = torch.randn(temp_100, 60, 1, 1, device=device)
+    z = torch.randn(temp_100, params['num_z'], 1, 1, device=device)
 
     # Discrete latent code.
+    # c1 = dis_c.view(temp_100, -1, 1, 1)
     c1 = dis_c.view(temp_100, -1, 1, 1)
 
     # Continuous latent code.
-    c2 = torch.cat((c, zeros), dim=1)
-    c3 = torch.cat((zeros, c), dim=1)
+    # c2 = torch.cat((c, zeros), dim=1)
+    # c3 = torch.cat((zeros, c), dim=1)
+    con_c = torch.rand(temp_100, params['num_con_c'], 1, 1, device=device) * 2 - 1
 
-    rand_z_c = torch.cat((z, c1, c2, c2), dim=1)
+    # rand_z_c = torch.cat((z, c1, c2, c3), dim=1)
+    rand_z_c = torch.cat((z, c1, con_c), dim=1)
 
     return rand_z_c
 
