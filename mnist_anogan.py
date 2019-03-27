@@ -79,7 +79,7 @@ def get_rand_z_c():
     c2 = torch.cat((c, zeros), dim=1)
     c3 = torch.cat((zeros, c), dim=1)
 
-    rand_z_c = torch.cat((z, c1, c2, c2), dim=1)
+    rand_z_c = torch.cat((z, c1, c2, c3), dim=1)
 
     return rand_z_c
 
