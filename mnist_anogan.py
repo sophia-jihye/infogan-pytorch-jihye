@@ -34,26 +34,27 @@ if (params['dataset'] == 'MNIST'):
 # restore models: generator, discriminator, netQ
 discriminator = Discriminator().to(device)
 discriminator.load_state_dict(state_dict['discriminator'])
-# print(discriminator)
 
 num_z_c = params['num_z'] + params['num_dis_c'] * params['dis_c_dim'] + params['num_con_c']
 netG = Generator(num_z_c).to(device)
 netG.load_state_dict(state_dict['netG'])
-# print(netG)
 
 netQ = QHead(params['num_con_c']).to(device)
 netQ.load_state_dict(state_dict['netQ'])
-# print(netQ)
 
 netD = DHead().to(device)
 netD.load_state_dict(state_dict['netD'])
 
-
-# print(netD)
+# Loss for discrimination between real and fake images.
+criterionD = nn.BCELoss()
+# Loss for discrete latent code.
+criterionQ_dis = nn.CrossEntropyLoss()
+# Loss for continuous latent code.
+criterionQ_con = NormalNLLLoss()
 
 
 def res_loss(x, Gz):
-    abs_sub = np.abs(x - Gz)
+    abs_sub = abs(x - Gz)
     return sum(abs_sub)
 
 
@@ -88,13 +89,13 @@ def get_rand_z_c():
 # among those 500 candidates.
 def get_most_similar_zc(x):
     z_c = get_rand_z_c()
-    Gz = netG(z_c).detach().cpu()
+    Gz = netG(z_c)
     min_loss = res_loss(x, Gz)
     result_z_c = z_c
 
     for _ in range(5):  # 500
         z_c = get_rand_z_c()
-        Gz = netG(z_c).detach().cpu()
+        Gz = netG(z_c)
         loss = res_loss(x, Gz)
         if (torch.sum(loss) < torch.sum(min_loss)):
             min_loss = loss
@@ -109,28 +110,46 @@ def get_most_similar_zc(x):
     # plt.imshow(np.transpose(vutils.make_grid(generated_img1, nrow=10, padding=2, normalize=True), (1, 2, 0)))
     # plt.savefig('./result/result_z_c {}'.format(label))
     # plt.close('all')
-    return result_z_c
+    return result_z_c, Gz.to(device)
 
 
 def anomaly_score(test_img):
     x = test_img.reshape((1, 1, 28, 28))
 
-    z_c = get_most_similar_zc(x)
-    Gz = netG(z_c)
-    a_score = torch.sum(res_loss(x, Gz.detach().cpu()))
-    # print("===")
-    # print(label, ': %d' % a_score)
+    z_c, Gz = get_most_similar_zc(x)
+    # Gz = netG(z_c)
 
-    output2 = discriminator(Gz.detach())
-    probs_fake = netD(output2).view(-1)
-    a_score = torch.sum(np.log(a_score) + probs_fake)
+    # res_loss
+    sub_res_loss = torch.sum(res_loss(x, Gz))
+    print('sub_res_loss', sub_res_loss.item())
 
-    # print('--1:',torch.sum(probs_fake))
-    # print('--2:',a_score)
-    # criterionD = nn.BCELoss()
-    # loss_fake = criterionD(probs_fake, label)
-    # a_score += loss_fake
+    # discriminator_loss
+    output = discriminator(Gz)
+    label = torch.full((81,), 1, device=device)
+    probs_fake = netD(output).view(-1)
+    sub_discriminator_loss = criterionD(probs_fake, label)
+    print('sub_discriminator_loss', sub_discriminator_loss.item())
 
+    # c_dis_loss
+    q_logits, q_mu, q_var = netQ(output)
+    idx = np.zeros((81, 81))
+    target = torch.LongTensor(idx).to(device)
+    temp_dim = 9
+    c_dis_loss = 0
+    for j in range(params['num_dis_c']):
+        c_dis_loss += criterionQ_dis(q_logits[:, j * temp_dim: j * temp_dim + temp_dim], target[j])
+    print('c_dis_loss=', c_dis_loss.item())
+
+    # c_con_loss
+    c_con_loss = 0
+    if (params['num_con_c'] != 0):
+        c_con_loss = criterionQ_con(
+            z_c[:, params['num_z'] + params['num_dis_c'] * params['dis_c_dim']:].view(-1, params['num_con_c']),
+            q_mu, q_var) * 0.1
+    print('c_con_loss=', c_con_loss.item())
+
+    a_score = 0.6 * sub_res_loss.detach().cpu() + 0.2 * sub_discriminator_loss.detach().cpu() + 0.1 * c_dis_loss.detach().cpu() + 0.1 * c_con_loss.detach().cpu()
+    print('a_score=', a_score)
     return a_score
 
 
@@ -147,29 +166,6 @@ def show_img(test_img, filename):
 
 # main
 anomaly_label = params['anomaly_label']
-if (trainYn == True):  # test_base
-    f = open('./result/base-%d-%s.csv' % (anomaly_label, filename), 'w', newline='')
-    csv_writer = csv.writer(f)
-    print('Use training data to calculate base-anomaly score.')
-    print('anomaly_label: ', anomaly_label)
-    dataloader = get_data(params['dataset'], params['batch_size'], anomaly_label, trainYn)
-
-    rand_idx_list = np.random.choice(len(dataloader), basenum)  # 500
-
-    aScore_list = []
-    for idx, item in enumerate(dataloader):
-        if (idx in rand_idx_list):
-            item = item[0]
-            aScore = anomaly_score(item)
-            aScore_list.append(aScore)
-
-    csv_writer.writerow(['mean', np.average(aScore_list)])
-    csv_writer.writerow(['max', max(aScore_list).item()])
-    csv_writer.writerow(['stdvar', np.std(aScore_list)])
-    csv_writer.writerow(['mean + 1 sigma ', np.average(aScore_list) + np.std(aScore_list)])
-    csv_writer.writerow(['mean + 2 sigma ', np.average(aScore_list) + 2 * np.std(aScore_list)])
-    f.close()
-    print('mean+1sigma', np.average(aScore_list) + np.std(aScore_list))
 
 if (trainYn == False):
     f = open('./result/test-%d-%.2f-%s.csv' % (anomaly_label, anonum, filename), 'w', newline='')
@@ -191,48 +187,24 @@ if (trainYn == False):
         cnt = -1
         scores_temp = []
         testy_temp = np.zeros((sample_test,))
+
         for idx, item in enumerate(dataloader):
             if (idx >= sample_test):
                 break
             cnt += 1
             print(cnt, '/', len(rand_idx_list))
 
-            item = item[0]
-            # show_img(item, str(label) + '-' + str(idx))
+            item = item[0].to(device)
             aScore = anomaly_score(item)
+
             scores_temp.append(aScore)
             if (label == anomaly_label):
                 print('anomaly_lael data')
                 testy_temp[cnt] = 1
-            # if (idx in rand_idx_list):
-            #     cnt += 1
-            #     print(cnt, '/', len(rand_idx_list))
-            #
-            #     item = item[0]
-            #     # show_img(item, str(label) + '-' + str(idx))
-            #     aScore = anomaly_score(item)
-            #     scores_temp.append(aScore)
-            #     if (label == anomaly_label):
-            #         print('anomaly_lael data')
-            #         testy_temp[cnt] = 1
         scores = np.concatenate((scores, scores_temp))
         testy = np.concatenate((testy, testy_temp))
         print('scores.shape=', scores.shape)
         print('testy.shape=', testy.shape)
-
-        # if (aScore > base_score):
-        #     print(str(label) + '-' + str(idx), ' => anomaly // aScore=', aScore.item())
-        #     csv_writer.writerow([label, idx, aScore.item(), 'y'])
-        #     if (label == anomaly_label):
-        #         tp += 1
-        #     else:
-        #         fp += 1
-        # else:
-        #     csv_writer.writerow([label, idx, aScore.item(), 'n'])
-        #     if (label != anomaly_label):
-        #         tn += 1
-        #     else:
-        #         fn += 1
 
     prc_auc = do_prc(scores, testy,
                      file_name=r'%d-%.2f_prc_%s' % (anomaly_label, anonum, filename),
@@ -273,3 +245,27 @@ if (trainYn == False):
     # print('sensitivity=', sensitivity)
     # print('specificity=', specificity)
     # print('f1score=', f1score)
+
+# if (trainYn == True):  # test_base
+#     f = open('./result/base-%d-%s.csv' % (anomaly_label, filename), 'w', newline='')
+#     csv_writer = csv.writer(f)
+#     print('Use training data to calculate base-anomaly score.')
+#     print('anomaly_label: ', anomaly_label)
+#     dataloader = get_data(params['dataset'], params['batch_size'], anomaly_label, trainYn)
+#
+#     rand_idx_list = np.random.choice(len(dataloader), basenum)  # 500
+#
+#     aScore_list = []
+#     for idx, item in enumerate(dataloader):
+#         if (idx in rand_idx_list):
+#             item = item[0]
+#             aScore = anomaly_score(item)
+#             aScore_list.append(aScore)
+#
+#     csv_writer.writerow(['mean', np.average(aScore_list)])
+#     csv_writer.writerow(['max', max(aScore_list).item()])
+#     csv_writer.writerow(['stdvar', np.std(aScore_list)])
+#     csv_writer.writerow(['mean + 1 sigma ', np.average(aScore_list) + np.std(aScore_list)])
+#     csv_writer.writerow(['mean + 2 sigma ', np.average(aScore_list) + 2 * np.std(aScore_list)])
+#     f.close()
+#     print('mean+1sigma', np.average(aScore_list) + np.std(aScore_list))
