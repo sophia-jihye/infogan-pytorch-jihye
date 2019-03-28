@@ -182,6 +182,11 @@ if (trainYn == False):
     tp = 0
     tn = 0
 
+    import time
+
+    begin = time.time()
+    inference_time = []
+
     scores = []
     testy = np.zeros((0,))
     for label in range(10):
@@ -206,6 +211,9 @@ if (trainYn == False):
             if (label == anomaly_label):
                 print('anomaly_lael data')
                 testy_temp[cnt] = 1
+
+        consumed_time = time.time() - begin
+
         scores = np.concatenate((scores, scores_temp))
         testy = np.concatenate((testy, testy_temp))
         print('scores.shape=', scores.shape)
@@ -215,6 +223,7 @@ if (trainYn == False):
                      file_name=r'%d-%.2f_prc_%s' % (anomaly_label, anonum, filename),
                      directory=r'result/')
     print("Testing | PRC AUC = {:.4f}".format(prc_auc))
+    print('consumed_time=', consumed_time)
 
     # f1_score_val = f1_score(testy, scores, average='weighted')
     # print("f1_score=", f1_score_val)
