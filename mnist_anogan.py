@@ -31,6 +31,11 @@ if (params['dataset'] == 'MNIST'):
     params['dis_c_dim'] = 9
     params['num_con_c'] = 2
 
+lambda_res = params['lambda_res']
+lambda_disc = params['lambda_disc']
+lambda_cdis = params['lambda_cdis']
+lambda_ccon = params['lambda_ccon']
+
 # restore models: generator, discriminator, netQ
 discriminator = Discriminator().to(device)
 discriminator.load_state_dict(state_dict['discriminator'])
@@ -148,7 +153,7 @@ def anomaly_score(test_img):
             q_mu, q_var) * 0.1
     print('c_con_loss=', c_con_loss.item())
 
-    a_score = 0.6 * sub_res_loss.detach().cpu() + 0.2 * sub_discriminator_loss.detach().cpu() + 0.1 * c_dis_loss.detach().cpu() + 0.1 * c_con_loss.detach().cpu()
+    a_score = lambda_res * sub_res_loss.detach().cpu() + lambda_disc * sub_discriminator_loss.detach().cpu() + lambda_cdis * c_dis_loss.detach().cpu() + lambda_ccon * c_con_loss.detach().cpu()
     print('a_score=', a_score)
     return a_score
 

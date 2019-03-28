@@ -8,16 +8,24 @@ parser.add_argument('--base_score', type=int)
 parser.add_argument('--trainYn', type=lambda x: (str(x).lower() == 'true'))
 parser.add_argument('--basenum', type=int)
 parser.add_argument('--anonum', type=float)
+parser.add_argument('--lambda_res', type=float)
+parser.add_argument('--lambda_disc', type=float)
+parser.add_argument('--lambda_cdis', type=float)
+parser.add_argument('--lambda_ccon', type=float)
 args = parser.parse_args()
 
 # Dictionary storing network parameters.
 params = {
     'load_path': args.load_path,  # 128 for train, 1 for anogan
     # 'batch_size': 1,  # 128 for train, 1 for anogan
-    'filename' : args.filename,
+    'filename': args.filename,
+    'lambda_res': args.lambda_res,
+    'lambda_disc': args.lambda_disc,
+    'lambda_cdis': args.lambda_cdis,
+    'lambda_ccon': args.lambda_ccon,
     'num_epochs': 500,  # 500   # Number of epochs to train for.
     'learning_rate': 2e-4,  # Learning rate.
-    'beta1': 0.5,	# 0.5
+    'beta1': 0.5,  # 0.5
     'beta2': 0.999,  # 0.999
     'save_epoch': 100,  # After how many epochs to save checkpoints and generate test output.
     'dataset': 'MNIST'}  # Dataset to use. Choose from {MNIST, SVHN, CelebA, FashionMNIST}. CASE MUST MATCH EXACTLY!!!!!
@@ -34,6 +42,10 @@ if (params['dataset'] == 'MNIST'):
         params['base_score'] = args.base_score
         params['anonum'] = args.anonum
         params['batch_size'] = 1
+        params['lambda_res'] = args.lambda_res
+        params['lambda_disc'] = args.lambda_disc
+        params['lambda_cdis'] = args.lambda_cdis
+        params['lambda_ccon'] = args.lambda_ccon
 # if (params['dataset'] == 'CELL'):
 #     params['beta1'] = 0.0  # 0.1 for class 0 and 1
 #     params['beta2'] = 0.999
