@@ -1,4 +1,3 @@
-echo $1
-echo $2
-echo $3
-python mnist_generate.py --anomaly_label $1 --load_path ./checkpoint/model_epoch$2_MNIST_$1_d1c2_beta0.5 --filename $3
+echo $1	# DEVICE
+echo $2 # epoch
+CUDA_VISIBLE_DEVICESES=$1 python mnist_generate.py --anomaly_label 0 --load_path ./checkpoint/model_epoch$2_MNIST_0_d1c2_beta0.5 --filename e$2
