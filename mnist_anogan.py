@@ -35,6 +35,7 @@ lambda_res = params['lambda_res']
 lambda_disc = params['lambda_disc']
 lambda_cdis = params['lambda_cdis']
 lambda_ccon = params['lambda_ccon']
+sim_num = params['sim_num']
 
 # restore models: generator, discriminator, netQ
 discriminator = Discriminator().to(device)
@@ -98,7 +99,7 @@ def get_most_similar_zc(x):
     min_loss = res_loss(x, Gz)
     result_z_c = z_c
 
-    for _ in range(5):  # 500
+    for _ in range(sim_num):  # 500
         z_c = get_rand_z_c()
         Gz = netG(z_c)
         loss = res_loss(x, Gz)
