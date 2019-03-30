@@ -193,19 +193,28 @@ if (trainYn == False):
     for label in range(10):
         dataloader = get_data(params['dataset'], params['batch_size'], label, trainYn)
 
-        sample_test = round(1000 * anonum)
-        rand_idx_list = np.random.choice(len(dataloader), sample_test)  # 500
+        if (anonum != 1.0):
+            sample_test = round(1000 * anonum)
+            rand_idx_list = np.random.choice(len(dataloader), sample_test)  # 500
+
         cnt = -1
         scores_temp = []
-        testy_temp = np.zeros((sample_test,))
-        # testy_temp = np.zeros((len(dataloader),))
+
+        if (anonum != 1.0):
+            testy_temp = np.zeros((sample_test,))
+        else:
+            testy_temp = np.zeros((len(dataloader),))
 
         for idx, item in enumerate(dataloader):
-            if (idx >= sample_test):
-                break
+            if (anonum != 1.0):
+                if (idx >= sample_test):
+                    break
             cnt += 1
-            print(cnt, '/', len(rand_idx_list))
-            # print(cnt, '/', len(dataloader))
+
+            if (anonum != 1.0):
+                print(cnt, '/', len(rand_idx_list))
+            else:
+                print(cnt, '/', len(dataloader))
 
             item = item[0].to(device)
             aScore = anomaly_score(item)
