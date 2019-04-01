@@ -11,7 +11,6 @@ from sklearn.metrics import f1_score
 
 device = torch.device("cuda:0" if (torch.cuda.is_available()) else "cpu")
 
-
 print('load_path:', params['load_path'])
 state_dict = torch.load(params['load_path'])
 filename = params['filename']
@@ -27,7 +26,7 @@ print('trainYn: ', trainYn)
 if (params['dataset'] == 'MNIST'):
     params['num_z'] = 62
     params['num_dis_c'] = 1
-    params['dis_c_dim'] = 9
+    # params['dis_c_dim'] = 9
     params['num_con_c'] = 2
 
 lambda_res = params['lambda_res']
@@ -132,16 +131,16 @@ def anomaly_score(test_img):
 
     # discriminator_loss
     output = discriminator(Gz)
-    label = torch.full((81,), 1, device=device)
+    label = torch.full((temp_dim * temp_dim,), 1, device=device)
     probs_fake = netD(output).view(-1)
     sub_discriminator_loss = criterionD(probs_fake, label)
     print('sub_discriminator_loss', sub_discriminator_loss.item())
 
     # c_dis_loss
     q_logits, q_mu, q_var = netQ(output)
-    idx = np.zeros((81, 81))
+    idx = np.zeros((temp_dim * temp_dim, temp_dim * temp_dim))
     target = torch.LongTensor(idx).to(device)
-    temp_dim = 9
+    # temp_dim = 9
     c_dis_loss = 0
     for j in range(params['num_dis_c']):
         c_dis_loss += criterionQ_dis(q_logits[:, j * temp_dim: j * temp_dim + temp_dim], target[j])

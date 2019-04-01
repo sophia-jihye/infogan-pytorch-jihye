@@ -13,6 +13,7 @@ parser.add_argument('--lambda_disc', type=float)
 parser.add_argument('--lambda_cdis', type=float)
 parser.add_argument('--lambda_ccon', type=float)
 parser.add_argument('--sim_num', type=int)
+parser.add_argument('--dis_c_dim', type=int)
 args = parser.parse_args()
 
 # Dictionary storing network parameters.
@@ -25,6 +26,7 @@ params = {
     'lambda_cdis': args.lambda_cdis,
     'lambda_ccon': args.lambda_ccon,
     'sim_num': args.sim_num,
+    'dis_c_dim': args.dis_c_dim,
     'num_epochs': 110,  # 500   # Number of epochs to train for.
     'learning_rate': 2e-4,  # Learning rate.
     'beta1': 0.5,  # 0.5
