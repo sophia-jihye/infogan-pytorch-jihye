@@ -27,7 +27,7 @@ if (params['dataset'] == 'MNIST'):
     params['num_z'] = 62
     params['num_dis_c'] = 1
     # params['dis_c_dim'] = 9
-    params['num_con_c'] = 2
+    # params['num_con_c'] = 2
 
 lambda_res = params['lambda_res']
 lambda_disc = params['lambda_disc']

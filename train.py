@@ -51,7 +51,7 @@ if (params['dataset'] == 'MNIST'):
     params['num_z'] = 62
     params['num_dis_c'] = 1
     # params['dis_c_dim'] = 10
-    params['num_con_c'] = 2
+    # params['num_con_c'] = 2
 elif (params['dataset'] == 'CELL'):
     params['num_z'] = 124
     params['num_dis_c'] = 3
