@@ -50,7 +50,7 @@ else:
 if (params['dataset'] == 'MNIST'):
     params['num_z'] = 62
     params['num_dis_c'] = 1
-    params['dis_c_dim'] = 9
+    params['dis_c_dim'] = 10
     params['num_con_c'] = 2
 elif (params['dataset'] == 'CELL'):
     params['num_z'] = 124
@@ -74,7 +74,7 @@ elif (params['dataset'] == 'FashionMNIST'):
     params['dis_c_dim'] = 10
     params['num_con_c'] = 2
 
-temp_dim = 9
+temp_dim = params['dis_c_dim']
 
 # Plot the training images.
 sample_batch = next(iter(dataloader))

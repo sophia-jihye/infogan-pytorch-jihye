@@ -25,7 +25,7 @@ params = {
     'lambda_cdis': args.lambda_cdis,
     'lambda_ccon': args.lambda_ccon,
     'sim_num': args.sim_num,
-    'num_epochs': 3000,  # 500   # Number of epochs to train for.
+    'num_epochs': 110,  # 500   # Number of epochs to train for.
     'learning_rate': 2e-4,  # Learning rate.
     'beta1': 0.5,  # 0.5
     'beta2': 0.999,  # 0.999

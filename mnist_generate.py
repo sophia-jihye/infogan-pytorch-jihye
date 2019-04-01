@@ -8,7 +8,7 @@ from config import params as params_config
 
 from models.mnist_model import Generator
 
-temp_dim = 9
+temp_dim = params['dis_c_dim']
 
 # Load the checkpoint file
 state_dict = torch.load(params_config['load_path'])

@@ -11,7 +11,6 @@ from sklearn.metrics import f1_score
 
 device = torch.device("cuda:0" if (torch.cuda.is_available()) else "cpu")
 
-temp_dim = 9
 
 print('load_path:', params['load_path'])
 state_dict = torch.load(params['load_path'])
@@ -36,6 +35,8 @@ lambda_disc = params['lambda_disc']
 lambda_cdis = params['lambda_cdis']
 lambda_ccon = params['lambda_ccon']
 sim_num = params['sim_num']
+
+temp_dim = params['dis_c_dim']
 
 # restore models: generator, discriminator, netQ
 discriminator = Discriminator().to(device)
