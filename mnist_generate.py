@@ -8,8 +8,6 @@ from config import params as params_config
 
 from models.mnist_model import Generator
 
-temp_dim = params['dis_c_dim']
-
 # Load the checkpoint file
 state_dict = torch.load(params_config['load_path'])
 
@@ -20,6 +18,8 @@ params = state_dict['params']
 
 anomaly_label = params_config['anomaly_label']
 filename = params_config['filename']
+temp_dim = params['dis_c_dim']
+
 
 # Create the generator network.
 num_z_c = params['num_z'] + params['num_dis_c'] * params['dis_c_dim'] + params['num_con_c']
