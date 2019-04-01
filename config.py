@@ -6,6 +6,7 @@ parser.add_argument('--anomaly_label', type=int)
 parser.add_argument('--filename', type=str)
 parser.add_argument('--base_score', type=int)
 parser.add_argument('--trainYn', type=lambda x: (str(x).lower() == 'true'))
+parser.add_argument('--show', type=lambda x: (str(x).lower() == 'true'))
 parser.add_argument('--basenum', type=int)
 parser.add_argument('--anonum', type=float)
 parser.add_argument('--lambda_res', type=float)
@@ -38,6 +39,7 @@ params = {
 
 if (params['dataset'] == 'MNIST'):
     params['trainYn'] = args.trainYn  # True , False
+    params['show'] = args.show  # True , False
     params['anomaly_label'] = args.anomaly_label
     # params['filename'] = args.filename
     params['basenum'] = args.basenum

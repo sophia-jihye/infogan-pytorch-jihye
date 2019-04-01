@@ -119,11 +119,23 @@ def get_most_similar_zc(x):
     return result_z_c, Gz.to(device)
 
 
+import datetime
+
+
 def anomaly_score(test_img):
+    now = datetime.datetime.now()
+
+    if (params['show'] == True):
+        test_img_cpu = test_img.detach().cpu()
+        show_img(test_img_cpu, 'query_%s' % (now.strftime('%S')))
+
     x = test_img.reshape((1, 1, 28, 28))
 
     z_c, Gz = get_most_similar_zc(x)
-    # Gz = netG(z_c)
+
+    if (params['show'] == True):
+        Gz_cpu = Gz.detach().cpu()
+        show_img(Gz_cpu, 'Gz_%s' % (now.strftime('%S')))
 
     # res_loss
     sub_res_loss = torch.sum(res_loss(x, Gz))
@@ -165,7 +177,7 @@ def show_img(test_img, filename):
     plt.figure(figsize=(10, 10))
     plt.axis("off")
     plt.imshow(np.transpose(vutils.make_grid(
-        sample_batch[0].to(device)[: temp_dim * temp_dim], nrow=temp_dim, padding=2, normalize=True).cpu(), (1, 2, 0)))
+        sample_batch[0][: temp_dim * temp_dim], nrow=temp_dim, padding=2, normalize=True).cpu(), (1, 2, 0)))
     plt.savefig('./result/img/raw-test-image-%s' % filename)
     plt.close('all')
 
