@@ -127,7 +127,7 @@ def anomaly_score(test_img):
 
     if (params['show'] == True):
         test_img_cpu = test_img.detach().cpu()
-        show_img(test_img_cpu, 'query_%s' % (now.strftime('%S')))
+        show_img(test_img_cpu, 'query_%s' % (now.strftime('%H%M%S')))
 
     x = test_img.reshape((1, 1, 28, 28))
 
@@ -135,7 +135,7 @@ def anomaly_score(test_img):
 
     if (params['show'] == True):
         Gz_cpu = Gz.detach().cpu()
-        show_img(Gz_cpu, 'Gz_%s' % (now.strftime('%S')))
+        show_img(Gz_cpu, 'Gz_%s' % (now.strftime('%H%M%S')))
 
     # res_loss
     sub_res_loss = torch.sum(res_loss(x, Gz))
