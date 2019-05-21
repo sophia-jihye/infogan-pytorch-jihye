@@ -7,7 +7,7 @@ parser.add_argument('--filename', type=str)
 parser.add_argument('--base_score', type=int)
 parser.add_argument('--trainYn', type=lambda x: (str(x).lower() == 'true'))
 parser.add_argument('--show', type=lambda x: (str(x).lower() == 'true'))
-parser.add_argument('--basenum', type=int)
+# parser.add_argument('--basenum', type=int)
 parser.add_argument('--anonum', type=float)
 parser.add_argument('--lambda_res', type=float)
 parser.add_argument('--lambda_disc', type=float)
@@ -42,7 +42,7 @@ if (params['dataset'] == 'MNIST'):
     params['show'] = args.show  # True , False
     params['anomaly_label'] = args.anomaly_label
     # params['filename'] = args.filename
-    params['basenum'] = args.basenum
+    # params['basenum'] = args.basenum
 
     if (params['trainYn'] == True):
         params['batch_size'] = 128

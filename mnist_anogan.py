@@ -14,7 +14,7 @@ device = torch.device("cuda:0" if (torch.cuda.is_available()) else "cpu")
 print('load_path:', params['load_path'])
 state_dict = torch.load(params['load_path'])
 filename = params['filename']
-basenum = params['basenum']
+# basenum = params['basenum']
 trainYn = params['trainYn']
 
 if (params['trainYn'] == False):
