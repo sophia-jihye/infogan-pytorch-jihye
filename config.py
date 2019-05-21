@@ -7,7 +7,7 @@ parser.add_argument('--filename', type=str)
 parser.add_argument('--base_score', type=int)
 parser.add_argument('--trainYn', type=lambda x: (str(x).lower() == 'true'))
 parser.add_argument('--show', type=lambda x: (str(x).lower() == 'true'))
-parser.add_argument('--basenum', type=int)
+# parser.add_argument('--basenum', type=int)
 parser.add_argument('--anonum', type=float)
 parser.add_argument('--lambda_res', type=float)
 parser.add_argument('--lambda_disc', type=float)
@@ -21,7 +21,6 @@ args = parser.parse_args()
 # Dictionary storing network parameters.
 params = {
     'load_path': args.load_path,  # 128 for train, 1 for anogan
-    # 'batch_size': 1,  # 128 for train, 1 for anogan
     'filename': args.filename,
     'lambda_res': args.lambda_res,
     'lambda_disc': args.lambda_disc,
@@ -41,8 +40,6 @@ if (params['dataset'] == 'MNIST'):
     params['trainYn'] = args.trainYn  # True , False
     params['show'] = args.show  # True , False
     params['anomaly_label'] = args.anomaly_label
-    # params['filename'] = args.filename
-    params['basenum'] = args.basenum
 
     if (params['trainYn'] == True):
         params['batch_size'] = 128

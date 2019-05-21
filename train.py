@@ -277,10 +277,9 @@ for epoch in range(params['num_epochs']):
                 'optimD': optimD.state_dict(),
                 'optimG': optimG.state_dict(),
                 'params': params
-            }, 'checkpoint/model_epoch%d_{}_{}_d{}c{}_beta{}'.format(params['dataset'], anomaly_label,
-                                                                     params['num_dis_c'],
-                                                                     params['num_con_c'],
-                                                                     params['beta1']) % (epoch + 1))
+            }, 'checkpoint/model_epoch%d_{}_{}_d{}c{}'.format(params['dataset'], anomaly_label,
+                                                                     params['dis_c_dim'],
+                                                                     params['num_con_c']) % (epoch + 1))
 
 training_time = time.time() - start_time
 print("-" * 50)
@@ -316,9 +315,9 @@ else:
         'optimD': optimD.state_dict(),
         'optimG': optimG.state_dict(),
         'params': params
-    }, 'checkpoint/model_final{}_{}_{}_d{}c{}_beta{}'.format(params['num_epochs'], params['dataset'], anomaly_label,
-                                                             params['num_dis_c'],
-                                                             params['num_con_c'], params['beta1']))
+    }, 'checkpoint/model_final{}_{}_{}_d{}c{}'.format(params['num_epochs'], params['dataset'], anomaly_label,
+                                                             params['dis_c_dim'],
+                                                             params['num_con_c']))
 
 # Plot the training losses.
 plt.figure(figsize=(10, 5))
