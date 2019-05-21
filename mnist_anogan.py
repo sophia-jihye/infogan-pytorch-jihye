@@ -41,7 +41,7 @@ temp_dim = params['dis_c_dim']
 discriminator = Discriminator().to(device)
 discriminator.load_state_dict(state_dict['discriminator'])
 
-num_z_c = params['num_z'] + params['num_dis_c'] * params['dis_c_dim'] + params['num_con_c']
+num_z_c = params['num_z'] + params['num_dis_c'] * params['dis_c_dim'] + params['num_con_c'] 
 netG = Generator(num_z_c).to(device)
 netG.load_state_dict(state_dict['netG'])
 
@@ -119,11 +119,23 @@ def get_most_similar_zc(x):
     return result_z_c, Gz.to(device)
 
 
+import datetime
+
+
 def anomaly_score(test_img):
+    now = datetime.datetime.now()
+
+    if (params['show'] == True):
+        test_img_cpu = test_img.detach().cpu()
+        show_img(test_img_cpu, 'query_%s' % (now.strftime('%H%M%S')))
+
     x = test_img.reshape((1, 1, 28, 28))
 
     z_c, Gz = get_most_similar_zc(x)
-    # Gz = netG(z_c)
+
+    if (params['show'] == True):
+        Gz_cpu = Gz.detach().cpu()
+        show_img(Gz_cpu, 'Gz_%s' % (now.strftime('%H%M%S')))
 
     # res_loss
     sub_res_loss = torch.sum(res_loss(x, Gz))
@@ -165,7 +177,7 @@ def show_img(test_img, filename):
     plt.figure(figsize=(10, 10))
     plt.axis("off")
     plt.imshow(np.transpose(vutils.make_grid(
-        sample_batch[0].to(device)[: temp_dim * temp_dim], nrow=temp_dim, padding=2, normalize=True).cpu(), (1, 2, 0)))
+        sample_batch[0][: temp_dim * temp_dim], nrow=temp_dim, padding=2, normalize=True).cpu(), (1, 2, 0)))
     plt.savefig('./result/img/raw-test-image-%s' % filename)
     plt.close('all')
 
