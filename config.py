@@ -21,7 +21,6 @@ args = parser.parse_args()
 # Dictionary storing network parameters.
 params = {
     'load_path': args.load_path,  # 128 for train, 1 for anogan
-    # 'batch_size': 1,  # 128 for train, 1 for anogan
     'filename': args.filename,
     'lambda_res': args.lambda_res,
     'lambda_disc': args.lambda_disc,
@@ -41,8 +40,6 @@ if (params['dataset'] == 'MNIST'):
     params['trainYn'] = args.trainYn  # True , False
     params['show'] = args.show  # True , False
     params['anomaly_label'] = args.anomaly_label
-    # params['filename'] = args.filename
-    # params['basenum'] = args.basenum
 
     if (params['trainYn'] == True):
         params['batch_size'] = 128
