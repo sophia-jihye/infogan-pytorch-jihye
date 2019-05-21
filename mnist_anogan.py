@@ -41,7 +41,7 @@ temp_dim = params['dis_c_dim']
 discriminator = Discriminator().to(device)
 discriminator.load_state_dict(state_dict['discriminator'])
 
-num_z_c = params['num_z'] + params['num_dis_c'] * params['dis_c_dim'] + params['num_con_c']
+num_z_c = params['num_z'] + params['num_dis_c'] * params['dis_c_dim'] + params['num_con_c'] 
 netG = Generator(num_z_c).to(device)
 netG.load_state_dict(state_dict['netG'])
 
