@@ -74,14 +74,14 @@ elif (params['dataset'] == 'FashionMNIST'):
     params['dis_c_dim'] = 10
     params['num_con_c'] = 2
 
-temp_dim = params['dis_c_dim']
+dis_c_dim = params['dis_c_dim']
 
 # Plot the training images.
 sample_batch = next(iter(dataloader))
 plt.figure(figsize=(10, 10))
 plt.axis("off")
 plt.imshow(np.transpose(vutils.make_grid(
-    sample_batch[0].to(device)[: temp_dim * temp_dim], nrow=temp_dim, padding=2, normalize=True).cpu(), (1, 2, 0)))
+    sample_batch[0].to(device)[: dis_c_dim * dis_c_dim], nrow=dis_c_dim, padding=2, normalize=True).cpu(), (1, 2, 0)))
 plt.savefig('./result/%d_epoch%d_Training_Images' % (anomaly_label, params['num_epochs']))
 plt.close('all')
 
@@ -125,21 +125,21 @@ optimG = optim.Adam([{'params': netG.parameters()}, {'params': netQ.parameters()
                     betas=(params['beta1'], params['beta2']))
 
 # Fixed Noise
-temp_100 = temp_dim * params['dis_c_dim']
-z = torch.randn(temp_100, params['num_z'], 1, 1, device=device)
+dis_c_dim_squared = dis_c_dim * dis_c_dim
+z = torch.randn(dis_c_dim_squared, params['num_z'], 1, 1, device=device)
 fixed_noise = z
 if (params['num_dis_c'] != 0):
-    idx = np.arange(params['dis_c_dim']).repeat(temp_dim)
-    dis_c = torch.zeros(temp_100, params['num_dis_c'], params['dis_c_dim'], device=device)
+    idx = np.arange(params['dis_c_dim']).repeat(dis_c_dim)
+    dis_c = torch.zeros(dis_c_dim_squared, params['num_dis_c'], params['dis_c_dim'], device=device)
     for i in range(params['num_dis_c']):
-        dis_c[torch.arange(0, temp_100), i, idx] = 1.0
+        dis_c[torch.arange(0, dis_c_dim_squared), i, idx] = 1.0
 
-    dis_c = dis_c.view(temp_100, -1, 1, 1)
+    dis_c = dis_c.view(dis_c_dim_squared, -1, 1, 1)
 
     fixed_noise = torch.cat((fixed_noise, dis_c), dim=1)
 
 if (params['num_con_c'] != 0):
-    con_c = torch.rand(temp_100, params['num_con_c'], 1, 1, device=device) * 2 - 1
+    con_c = torch.rand(dis_c_dim_squared, params['num_con_c'], 1, 1, device=device) * 2 - 1
     fixed_noise = torch.cat((fixed_noise, con_c), dim=1)
 
 real_label = 1
@@ -209,7 +209,7 @@ for epoch in range(params['num_epochs']):
         # Calculating loss for discrete latent code.
         dis_loss = 0
         for j in range(params['num_dis_c']):
-            dis_loss += criterionQ_dis(q_logits[:, j * temp_dim: j * temp_dim + temp_dim], target[j])
+            dis_loss += criterionQ_dis(q_logits[:, j * dis_c_dim: j * dis_c_dim + dis_c_dim], target[j])
 
         # Calculating loss for continuous latent code.
         con_loss = 0
@@ -241,7 +241,7 @@ for epoch in range(params['num_epochs']):
     # Generate image after each epoch to check performance of the generator. Used for creating animated gif later.
     with torch.no_grad():
         gen_data = netG(fixed_noise).detach().cpu()
-    img_list.append(vutils.make_grid(gen_data, nrow=temp_dim, padding=2, normalize=True))
+    img_list.append(vutils.make_grid(gen_data, nrow=dis_c_dim, padding=2, normalize=True))
 
     # Generate image to check performance of generator.
     if ((epoch + 1) == 1 or (epoch + 1) % params['save_epoch'] == 0):
@@ -249,7 +249,7 @@ for epoch in range(params['num_epochs']):
             gen_data = netG(fixed_noise).detach().cpu()
         plt.figure(figsize=(10, 10))
         plt.axis("off")
-        plt.imshow(np.transpose(vutils.make_grid(gen_data, nrow=temp_dim, padding=2, normalize=True), (1, 2, 0)))
+        plt.imshow(np.transpose(vutils.make_grid(gen_data, nrow=dis_c_dim, padding=2, normalize=True), (1, 2, 0)))
         plt.savefig("./result/%d-Epoch%d" % (anomaly_label, epoch + 1))
         plt.close('all')
 
@@ -291,7 +291,7 @@ with torch.no_grad():
     gen_data = netG(fixed_noise).detach().cpu()
 plt.figure(figsize=(10, 10))
 plt.axis("off")
-plt.imshow(np.transpose(vutils.make_grid(gen_data, nrow=temp_dim, padding=2, normalize=True), (1, 2, 0)))
+plt.imshow(np.transpose(vutils.make_grid(gen_data, nrow=dis_c_dim, padding=2, normalize=True), (1, 2, 0)))
 plt.savefig("./result/Epoch_%d_{}".format(params['dataset']) % (params['num_epochs']))
 
 # Save network weights.
