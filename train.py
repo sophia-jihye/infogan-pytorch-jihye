@@ -104,7 +104,7 @@ netD.apply(weights_init)
 print(netD)
 
 if (params['dataset'] == 'MNIST' or params['dataset'] == 'CELL'):
-    netQ = QHead(params['num_con_c']).to(device)
+    netQ = QHead(params['dis_c_dim'], params['num_con_c']).to(device)
 else:
     netQ = QHead().to(device)
 

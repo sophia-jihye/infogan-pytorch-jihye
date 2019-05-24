@@ -61,13 +61,13 @@ class DHead(nn.Module):
         return output
 
 class QHead(nn.Module):
-    def __init__(self, num_con_c):
+    def __init__(self, dis_c_dim, num_con_c):
         super().__init__()
 
         self.conv1 = nn.Conv2d(1024, 128, 1, bias=False)
         self.bn1 = nn.BatchNorm2d(128)
 
-        self.conv_disc = nn.Conv2d(128, 10, 1)
+        self.conv_disc = nn.Conv2d(128, dis_c_dim, 1)
         self.conv_mu = nn.Conv2d(128, num_con_c, 1)
         self.conv_var = nn.Conv2d(128, num_con_c, 1)
 
