@@ -14,12 +14,10 @@ device = torch.device("cuda:0" if (torch.cuda.is_available()) else "cpu")
 print('load_path:', params['load_path'])
 state_dict = torch.load(params['load_path'])
 filename = params['filename']
-# basenum = params['basenum']
 trainYn = params['trainYn']
 
 if (params['trainYn'] == False):
     anonum = params['anonum']
-    base_score = params['base_score']
 
 print('trainYn: ', trainYn)
 
@@ -45,7 +43,7 @@ num_z_c = params['num_z'] + params['num_dis_c'] * params['dis_c_dim'] + params['
 netG = Generator(num_z_c).to(device)
 netG.load_state_dict(state_dict['netG'])
 
-netQ = QHead(params['num_con_c']).to(device)
+netQ = QHead(params['dis_c_dim'], params['num_con_c']).to(device)
 netQ.load_state_dict(state_dict['netQ'])
 
 netD = DHead().to(device)
@@ -186,17 +184,16 @@ def show_img(test_img, filename):
 anomaly_label = params['anomaly_label']
 
 if (trainYn == False):
-    f = open('./result/test-%d-%.2f-%s.csv' % (anomaly_label, anonum, filename), 'w', newline='')
-    csv_writer = csv.writer(f)
-    csv_writer.writerow(['label', 'idx', 'score', 'anomalyYN'])
+    # f = open('./result/test-%d-%.4f-%s.csv' % (anomaly_label, anonum, filename), 'w', newline='')
+    # csv_writer = csv.writer(f)
+    # csv_writer.writerow(['label', 'idx', 'score', 'anomalyYN'])
 
-    fp = 0
-    fn = 0
-    tp = 0
-    tn = 0
+    # fp = 0
+    # fn = 0
+    # tp = 0
+    # tn = 0
 
     import time
-
     begin = time.time()
     inference_time = []
 
@@ -244,7 +241,7 @@ if (trainYn == False):
         print('testy.shape=', testy.shape)
 
     prc_auc = do_prc(scores, testy,
-                     file_name=r'%d-%.2f_prc_%s' % (anomaly_label, anonum, filename),
+                     file_name=r'%d-%.4f-%s' % (anomaly_label, anonum, filename),
                      directory=r'result/')
     print("Testing | PRC AUC = {:.4f}".format(prc_auc))
     print('consumed_time=', consumed_time)
@@ -278,7 +275,7 @@ if (trainYn == False):
     # csv_writer.writerow(['sensitivity', sensitivity])
     # csv_writer.writerow(['specificity', specificity])
     # csv_writer.writerow(['f1-score', f1score])
-    f.close()
+    # f.close()
     # print('precision=', precision)
     # print('sensitivity=', sensitivity)
     # print('specificity=', specificity)

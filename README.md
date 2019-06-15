@@ -29,3 +29,10 @@
 * Results for Semantic Feature Representation (In case of 1 discrete variable and 2 continuous variable)
     - `./result/$ANOMALYLABEL_c12_$FILENAME.png` : y-axis represents c1 (discrete) variable, x-axis represents c2 (continuous) variable.
     - `./result/$ANOMALYLABEL_c13_$FILENAME.png` : y-axis represents c1 (discrete) variable, x-axis represents c3 (continuous) variable.
+    
+### Anomaly Detection: Refer to `./test_anomaly.sh`
+> CUDA_VISIBLE_DEVICES=$DEVICENUM python mnist_anogan.py --load_path ./checkpoint/$MODELNAME --trainYn false --anomaly_label $ANOMALYLABEL --anonum $ANONUM --filename $FILENAME --lambda_res 1.0 --lambda_disc 0.0 --lambda_cdis 0.0 --lambda_ccon 0.0 --sim_num 5 --dis_c_dim 9 --num_con_c 2
+
+* $ANONUM : 0.001 ~ 1
+* Results after Anomaly Detection
+    - `./result/$ANOMALYLABEL-$ANONUM-$FILENAME_prc.png`
