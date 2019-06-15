@@ -39,7 +39,7 @@ temp_dim = params['dis_c_dim']
 discriminator = Discriminator().to(device)
 discriminator.load_state_dict(state_dict['discriminator'])
 
-num_z_c = params['num_z'] + params['num_dis_c'] * params['dis_c_dim'] + params['num_con_c'] 
+num_z_c = params['num_z'] + params['num_dis_c'] * params['dis_c_dim'] + params['num_con_c']
 netG = Generator(num_z_c).to(device)
 netG.load_state_dict(state_dict['netG'])
 
@@ -120,20 +120,28 @@ def get_most_similar_zc(x):
 import datetime
 
 
-def anomaly_score(test_img):
+def anomaly_score(test_img, label):
     now = datetime.datetime.now()
 
     if (params['show'] == True):
         test_img_cpu = test_img.detach().cpu()
-        show_img(test_img_cpu, 'query_%s' % (now.strftime('%H%M%S')))
+        show_img(test_img_cpu, '%d_query_%s' % (label, now.strftime('%H%M%S')))
 
     x = test_img.reshape((1, 1, 28, 28))
 
     z_c, Gz = get_most_similar_zc(x)
 
+    # dis_c_dim_squared = params['dis_c_dim'] * params['dis_c_dim']
+    # zeros = torch.zeros(dis_c_dim_squared, 1, 1, 1, device=device)
+    # idx = np.arange(params['dis_c_dim']).repeat(params['dis_c_dim'])
+    # dis_c = torch.zeros(dis_c_dim_squared, params['dis_c_dim'], 1, 1, device=device)
+    # dis_c[torch.arange(0, dis_c_dim_squared), idx] = 1.0
+    # c1 = dis_c.view(dis_c_dim_squared, -1, 1, 1)
+    print("=====label ", label, "=> ", z_c.shape)
+
     if (params['show'] == True):
         Gz_cpu = Gz.detach().cpu()
-        show_img(Gz_cpu, 'Gz_%s' % (now.strftime('%H%M%S')))
+        show_img(Gz_cpu, '%d_Gz_%s' % (label, now.strftime('%H%M%S')))
 
     # res_loss
     sub_res_loss = torch.sum(res_loss(x, Gz))
@@ -176,7 +184,7 @@ def show_img(test_img, filename):
     plt.axis("off")
     plt.imshow(np.transpose(vutils.make_grid(
         sample_batch[0][: temp_dim * temp_dim], nrow=temp_dim, padding=2, normalize=True).cpu(), (1, 2, 0)))
-    plt.savefig('./result/img/raw-test-image-%s' % filename)
+    plt.savefig('./result/img/%s' % filename)
     plt.close('all')
 
 
@@ -194,6 +202,7 @@ if (trainYn == False):
     # tn = 0
 
     import time
+
     begin = time.time()
     inference_time = []
 
@@ -226,7 +235,7 @@ if (trainYn == False):
                 print(cnt, '/', len(dataloader))
 
             item = item[0].to(device)
-            aScore = anomaly_score(item)
+            aScore = anomaly_score(item, label)
 
             scores_temp.append(aScore)
             if (label == anomaly_label):

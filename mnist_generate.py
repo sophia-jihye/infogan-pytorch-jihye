@@ -35,7 +35,41 @@ dis_c[torch.arange(0, dis_c_dim_squared), idx] = 1.0
 
 z = torch.randn(dis_c_dim_squared, 62, 1, 1, device=device)
 
-if(params['num_con_c']==3):
+if(params['num_con_c']==2):
+    # Discrete latent code.
+    c1 = dis_c.view(dis_c_dim_squared, -1, 1, 1)
+    # Continuous latent code.
+    c2 = torch.cat((c, zeros), dim=1)
+    c3 = torch.cat((zeros, c), dim=1)
+
+    # To see variation along first item (Vertically) and last item (Horizontally).
+    noise1 = torch.cat((z, c1, c2), dim=1)
+    print('---noise1: ', noise1.shape)
+
+    # Generate image.
+    with torch.no_grad():
+        generated_img1 = netG(noise1).detach().cpu()
+    # Display the generated image.
+    fig = plt.figure(figsize=(10, 10))
+    plt.axis("off")
+    plt.imshow(np.transpose(vutils.make_grid(generated_img1, nrow=dis_c_dim, padding=2, normalize=True), (1, 2, 0)))
+    plt.savefig('./result/%d_c12_%s' % (anomaly_label, filename))
+    plt.close('all')
+
+    # To see variation along c3 (Horizontally) and c1 (Vertically)
+    noise2 = torch.cat((z, c1, c3), dim=1)
+    print('---noise2: ', noise1.shape)
+
+    # Generate image.
+    with torch.no_grad():
+        generated_img2 = netG(noise2).detach().cpu()
+    # Display the generated image.
+    fig = plt.figure(figsize=(10, 10))
+    plt.axis("off")
+    plt.imshow(np.transpose(vutils.make_grid(generated_img2, nrow=dis_c_dim, padding=2, normalize=True), (1, 2, 0)))
+    plt.savefig('./result/%d_c13_%s' % (anomaly_label, filename))
+    plt.close('all')
+elif(params['num_con_c']==3):
     # Discrete latent code.
     c1 = dis_c.view(dis_c_dim_squared, -1, 1, 1)
     # Continuous latent code.
@@ -83,38 +117,4 @@ if(params['num_con_c']==3):
     plt.axis("off")
     plt.imshow(np.transpose(vutils.make_grid(generated_img3, nrow=dis_c_dim, padding=2, normalize=True), (1, 2, 0)))
     plt.savefig('./result/%d_c14_%s' % (anomaly_label, filename))
-    plt.close('all')
-elif(params['num_con_c']==2):
-    # Discrete latent code.
-    c1 = dis_c.view(dis_c_dim_squared, -1, 1, 1)
-    # Continuous latent code.
-    c2 = torch.cat((c, zeros), dim=1)
-    c3 = torch.cat((zeros, c), dim=1)
-
-    # To see variation along first item (Vertically) and last item (Horizontally).
-    noise1 = torch.cat((z, c1, c2), dim=1)
-    print('---noise1: ', noise1.shape)
-
-    # Generate image.
-    with torch.no_grad():
-        generated_img1 = netG(noise1).detach().cpu()
-    # Display the generated image.
-    fig = plt.figure(figsize=(10, 10))
-    plt.axis("off")
-    plt.imshow(np.transpose(vutils.make_grid(generated_img1, nrow=dis_c_dim, padding=2, normalize=True), (1, 2, 0)))
-    plt.savefig('./result/%d_c12_%s' % (anomaly_label, filename))
-    plt.close('all')
-
-    # To see variation along c3 (Horizontally) and c1 (Vertically)
-    noise2 = torch.cat((z, c1, c3), dim=1)
-    print('---noise2: ', noise1.shape)
-
-    # Generate image.
-    with torch.no_grad():
-        generated_img2 = netG(noise2).detach().cpu()
-    # Display the generated image.
-    fig = plt.figure(figsize=(10, 10))
-    plt.axis("off")
-    plt.imshow(np.transpose(vutils.make_grid(generated_img2, nrow=dis_c_dim, padding=2, normalize=True), (1, 2, 0)))
-    plt.savefig('./result/%d_c13_%s' % (anomaly_label, filename))
     plt.close('all')
