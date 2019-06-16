@@ -87,10 +87,7 @@ plt.close('all')
 
 # Initialise the network.
 num_z_c = params['num_z'] + params['num_dis_c'] * params['dis_c_dim'] + params['num_con_c']
-if (params['dataset'] == 'MNIST' or params['dataset'] == 'CELL'):
-    netG = Generator(num_z_c).to(device)
-else:
-    netG = Generator().to(device)
+netG = Generator(num_z_c).to(device)
 
 netG.apply(weights_init)
 print(netG)
@@ -103,10 +100,7 @@ netD = DHead().to(device)
 netD.apply(weights_init)
 print(netD)
 
-if (params['dataset'] == 'MNIST' or params['dataset'] == 'CELL'):
-    netQ = QHead(params['dis_c_dim'], params['num_con_c']).to(device)
-else:
-    netQ = QHead().to(device)
+netQ = QHead(params['dis_c_dim'], params['num_con_c']).to(device)
 
 netQ.apply(weights_init)
 print(netQ)
@@ -254,32 +248,18 @@ for epoch in range(params['num_epochs']):
         plt.close('all')
 
     # Save network weights.
-    if (params['dataset'] == 'CELL'):
-        if (epoch + 1) % params['save_epoch'] == 0:
-            torch.save({
-                'netG': netG.state_dict(),
-                'discriminator': discriminator.state_dict(),
-                'netD': netD.state_dict(),
-                'netQ': netQ.state_dict(),
-                'optimD': optimD.state_dict(),
-                'optimG': optimG.state_dict(),
-                'params': params
-            }, 'checkpoint/model_%d_epoch%d_{}_{}_d{}c{}'.format(params['dataset'], params['datainfo'],
-                                                                 params['num_dis_c'],
-                                                                 params['num_con_c']) % (anomaly_label, epoch + 1))
-    else:
-        if (epoch + 1) % params['save_epoch'] == 0:
-            torch.save({
-                'netG': netG.state_dict(),
-                'discriminator': discriminator.state_dict(),
-                'netD': netD.state_dict(),
-                'netQ': netQ.state_dict(),
-                'optimD': optimD.state_dict(),
-                'optimG': optimG.state_dict(),
-                'params': params
-            }, 'checkpoint/model_epoch%d_{}_{}_d{}c{}'.format(params['dataset'], anomaly_label,
-                                                                     params['dis_c_dim'],
-                                                                     params['num_con_c']) % (epoch + 1))
+    if (epoch + 1) % params['save_epoch'] == 0:
+        torch.save({
+            'netG': netG.state_dict(),
+            'discriminator': discriminator.state_dict(),
+            'netD': netD.state_dict(),
+            'netQ': netQ.state_dict(),
+            'optimD': optimD.state_dict(),
+            'optimG': optimG.state_dict(),
+            'params': params
+        }, 'checkpoint/model_epoch%d_{}_{}_d{}c{}'.format(params['dataset'], anomaly_label,
+                                                          params['dis_c_dim'],
+                                                          params['num_con_c']) % (epoch + 1))
 
 training_time = time.time() - start_time
 print("-" * 50)
@@ -295,19 +275,7 @@ plt.imshow(np.transpose(vutils.make_grid(gen_data, nrow=dis_c_dim, padding=2, no
 plt.savefig("./result/Epoch_%d_{}".format(params['dataset']) % (params['num_epochs']))
 
 # Save network weights.
-if (params['dataset'] == 'CELL'):
-    torch.save({
-        'netG': netG.state_dict(),
-        'discriminator': discriminator.state_dict(),
-        'netD': netD.state_dict(),
-        'netQ': netQ.state_dict(),
-        'optimD': optimD.state_dict(),
-        'optimG': optimG.state_dict(),
-        'params': params
-    }, 'checkpoint/model_final_{}_{}_d{}c{}_beta{}'.format(params['dataset'], params['datainfo'], params['num_dis_c'],
-                                                           params['num_con_c'], params['beta1']))
-else:
-    torch.save({
+torch.save({
         'netG': netG.state_dict(),
         'discriminator': discriminator.state_dict(),
         'netD': netD.state_dict(),

@@ -120,12 +120,12 @@ def get_most_similar_zc(x):
 import datetime
 
 
-def anomaly_score(test_img, label):
+def anomaly_score(test_img, label, idx):
     now = datetime.datetime.now()
 
     if (params['show'] == True):
         test_img_cpu = test_img.detach().cpu()
-        show_img(test_img_cpu, '%d_query_%s' % (label, now.strftime('%H%M%S')))
+        show_img(test_img_cpu, '%d_%d_query_%s' % (label, idx, now.strftime('%H%M%S')))
 
     x = test_img.reshape((1, 1, 28, 28))
 
@@ -141,7 +141,7 @@ def anomaly_score(test_img, label):
 
     if (params['show'] == True):
         Gz_cpu = Gz.detach().cpu()
-        show_img(Gz_cpu, '%d_Gz_%s' % (label, now.strftime('%H%M%S')))
+        show_img(Gz_cpu, '%d_%d_Gz_%s' % (label, idx, now.strftime('%H%M%S')))
 
     # res_loss
     sub_res_loss = torch.sum(res_loss(x, Gz))
@@ -214,14 +214,13 @@ if (trainYn == False):
         if (anonum != 1.0):
             sample_test = round(1000 * anonum)
             rand_idx_list = np.random.choice(len(dataloader), sample_test)  # 500
+            testy_temp = np.zeros((sample_test,))
+        else:
+            testy_temp = np.zeros((len(dataloader),))
 
         cnt = -1
         scores_temp = []
 
-        if (anonum != 1.0):
-            testy_temp = np.zeros((sample_test,))
-        else:
-            testy_temp = np.zeros((len(dataloader),))
 
         for idx, item in enumerate(dataloader):
             if (anonum != 1.0):
@@ -235,7 +234,7 @@ if (trainYn == False):
                 print(cnt, '/', len(dataloader))
 
             item = item[0].to(device)
-            aScore = anomaly_score(item, label)
+            aScore = anomaly_score(item, label, idx)
 
             scores_temp.append(aScore)
             if (label == anomaly_label):
